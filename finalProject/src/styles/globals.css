@@ -19,6 +19,24 @@
   --color-surface-container: #edeeef;
   --color-outline-variant: #bec9c4;
   --color-error: #ba1a1a;
+  --color-error-light: #fff0f0;
+  --color-background: #e8f5ee;
+
+  /* Semantic status colors */
+  --color-warning-bg: #fff3cd;
+  --color-warning-border: #f0ad4e;
+  --color-warning-text: #7a4a00;
+  --color-success-bg: #d1fae5;
+  --color-success-text: #065f46;
+  --color-caution-bg: #fef3c7;
+  --color-caution-text: #92400e;
+  --color-danger-bg: #fee2e2;
+  --color-danger-text: #991b1b;
+
+  /* Brand colors */
+  --color-whatsapp: #25d366;
+  --color-waze: #00bcd4;
+  --color-white: #ffffff;
 
   /* Typography */
   --font-family: 'Hanken Grotesk', sans-serif;
@@ -44,7 +62,7 @@ body {
   font-family: var(--font-family);
   font-size: var(--font-size-body-large);
   color: var(--color-on-surface);
-  background-color: var(--color-surface);
+  background-color: var(--color-background);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -52,4 +70,13 @@ body {
   max-width: 430px;
   margin: 0 auto;
   padding-bottom: var(--navbar-height);
+  background-color: var(--color-surface);
+  min-height: 100dvh;
+}
+
+/* On screens wider than mobile, show the app as a centered card */
+@media (min-width: 431px) {
+  .page-container {
+    box-shadow: 0 0 48px rgba(0, 0, 0, 0.14);
+  }
 }
