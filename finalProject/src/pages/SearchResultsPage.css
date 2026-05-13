@@ -95,18 +95,18 @@
 }
 
 .difficulty-badge--easy {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
 }
 
 .difficulty-badge--medium {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-caution-bg);
+  color: var(--color-caution-text);
 }
 
 .difficulty-badge--advanced {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
 }
 
 /* Empty state */

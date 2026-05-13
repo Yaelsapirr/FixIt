@@ -22,8 +22,8 @@
 
 /* Safety alert */
 .safety-alert {
-  background: #fff3cd;
-  border: 1.5px solid #f0ad4e;
+  background: var(--color-warning-bg);
+  border: 1.5px solid var(--color-warning-border);
   border-radius: var(--border-radius-sm);
   padding: var(--spacing-md);
 }
@@ -31,7 +31,7 @@
 .safety-alert__text {
   font-size: var(--font-size-body-medium);
   font-weight: 600;
-  color: #7a4a00;
+  color: var(--color-warning-text);
   text-align: right;
   direction: rtl;
   line-height: 1.5;
