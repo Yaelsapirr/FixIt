@@ -1,73 +1,128 @@
-# React + TypeScript + Vite
+# FixIt — תיקונים ביתיים בקלות 🔩
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> אפליקציית מובייל שמנחה אותך לתקן תקלות ביתיות בעצמך — שלב אחר שלב, בעברית, בלי לחכות לטכנאי.
 
-Currently, two official plugins are available:
+🔗 **[פרויקט חי על Vercel](#)** ← יעודכן לאחר deployment
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## סקירה כללית
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+FixIt היא אפליקציית React מובייל-פרסט המיועדת לתושבים ישראלים שנתקלים בתקלות ביתיות שגרתיות — ברז מטפטף, שקע חשמל שמת, דלת שתקועה. האפליקציה מציגה מדריכי DIY שלב-אחר-שלב בעברית, מאפשרת לסמן כל שלב שהושלם, ובמקרה שהתיקון גדול מדי — מפנה לטכנאי מקצועי או לחנות ציוד קרובה.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## הבעיה שהפרויקט פותר
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+כשמשהו מתקלקל בבית, רוב האנשים עושים אחד משלושה דברים: מחפשים ב-YouTube ומקבלים סרטון באנגלית שלא מתאים לתשתיות הישראליות, שולחים הודעה בקבוצת הוואטסאפ ומחכים שמישהו יענה, או מזמינים טכנאי מיד — ומשלמים 200–400 ₪ על תיקון שלוקח 10 דקות.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+FixIt נותנת מענה לבעיה הזו: מדריך ברור, בעברית, עם רשימת כלים מדויקת והתראות בטיחות — מותאם לתקלות הנפוצות בישראל.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+---
+
+## קהל היעד
+
+שוכרים ובעלי דירות בישראל (בעיקר גילאי 20–45) שיש להם כישורים בסיסיים אך לא ניסיון מקצועי, ומעדיפים לנסות לתקן בעצמם לפני שמזמינים טכנאי. הם משתמשים בסמארטפון, רגילים לממשקים בעברית ומצפים לחוויה נוחה ומהירה.
+
+---
+
+## מתחרים ובידול
+
+| מתחרה | חסרון |
+|---|---|
+| YouTube | אנגלית, לא מובנה, מסיח דעת |
+| קבוצות וואטסאפ | תלוי בזמינות אחרים, לא מובנה |
+| זימון טכנאי | יקר (200–400 ₪), לא מיידי |
+| WikiHow / אתרי DIY | לא בעברית, לא מותאם לתשתיות ישראל |
+
+**הבידול של FixIt:**
+- עברית מלאה + RTL
+- מדריכים מובנים עם צ׳קליסט אינטראקטיבי
+- אינטגרציה ישירה לטכנאים ולחנויות קרובות אם הבעיה גדולה מדי
+- מעקב אחר חסכון כספי מצטבר — מוטיבציה להמשיך לתקן לבד
+
+---
+
+## טכנולוגיות
+
+| שכבה | טכנולוגיה |
+|---|---|
+| Frontend | React 19, React Router 7, TypeScript, Vite |
+| Backend / DB | Supabase (PostgreSQL + Auth + RLS) |
+| Deployment | Vercel |
+| עיצוב | CSS Variables, Mobile-first, RTL |
+
+---
+
+## שירותים חיצוניים ואינטגרציות
+
+| שירות | סוג | תפקיד במוצר |
+|---|---|---|
+| Supabase Auth | אוטנטיקציה | הרשמה והתחברות משתמשים (email + Google OAuth) |
+| Supabase Database | בסיס נתונים | אחסון מדריכים, טכנאים, חנויות והיסטוריית תיקונים |
+| Supabase RLS | אבטחה | הגנה על נתוני משתמש — כל משתמש רואה רק את שלו |
+| Vercel | Deployment | הגשת הגרסה החיה של האפליקציה |
+| WhatsApp API | תקשורת | כפתור יצירת קשר ישיר עם טכנאים |
+| Waze Deep Link | ניווט | ניווט לחנויות ציוד קרובות |
+
+---
+
+## מודל הנתונים (ERD)
+
+תרשים ה-ERD זמין בתיקייה `supabase/schema.sql` ובצילום המסך מ-Supabase Schema Visualizer:
+
+**טבלאות:**
+- `categories` — קטגוריות תיקון (אינסטלציה, חשמל וכו׳)
+- `repair_guides` — מדריכי תיקון עם רמת קושי וזמן משוער
+- `guide_steps` — שלבי המדריך (One-to-Many עם repair_guides)
+- `technicians` — טכנאים מקצועיים עם דירוג וקטגוריה
+- `stores` — חנויות ציוד עם מיקום GPS
+- `users` — פרופיל משתמש (מחובר ל-Supabase Auth)
+- `repair_history` — היסטוריית תיקונים וחסכון כספי לכל משתמש
+
+---
+
+## הרצה מקומית
+
+```bash
+# שכפול הריפו
+git clone <repo-url>
+cd finalProject
+
+# התקנת תלויות
+npm install
+
+# הגדרת משתני סביבה — צרו קובץ .env.local:
+VITE_SUPABASE_URL=https://xxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+
+# הרצה
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## משתמש דמו לבדיקה
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| שדה | ערך |
+|---|---|
+| אימייל | `demo@fixit.co.il` |
+| סיסמה | `Demo1234!` |
+
+> ⚠️ יש להגדיר משתמש זה ידנית ב-Supabase Auth לפני הבדיקה.
+
+---
+
+## מבנה הפרויקט
+
+```
+src/
+├── pages/          # דפי האפליקציה
+├── components/     # רכיבים משותפים (Navbar, AppHeader)
+├── lib/
+│   └── supabase.js # חיבור ל-Supabase
+└── styles/
+    └── globals.css # Design system + CSS variables
+supabase/
+└── schema.sql      # יצירת טבלאות + RLS + seed data
 ```
