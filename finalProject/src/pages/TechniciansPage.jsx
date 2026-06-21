@@ -1,48 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './TechniciansPage.css';
 
 const FILTERS = ['הכל', 'אינסטלציה', 'חשמל', 'כללי'];
 
-const TECHNICIANS = [
-  {
-    id: 1,
-    initials: 'מכ',
-    name: 'מיכאל כהן',
-    specialty: 'אינסטלטור מוסמך',
-    category: 'אינסטלציה',
-    stars: 5,
-    available: 'now',
-    phone: '0501234567',
-  },
-  {
-    id: 2,
-    initials: 'יל',
-    name: 'יוסי לוי',
-    specialty: 'חשמלאי מוסמך',
-    category: 'חשמל',
-    stars: 4,
-    available: 'tomorrow',
-    phone: '0527654321',
-  },
-  {
-    id: 3,
-    initials: 'דמ',
-    name: 'דני מזרחי',
-    specialty: 'איש תחזוקה כללי',
-    category: 'כללי',
-    stars: 4,
-    available: 'now',
-    phone: '0541112233',
-  },
-];
-
 function Stars({ count }) {
   return (
     <span className="stars" aria-label={`דירוג ${count} מתוך 5`}>
-      {'⭐'.repeat(count)}
-      {'☆'.repeat(5 - count)}
+      {'⭐'.repeat(Math.floor(count))}
+      {'☆'.repeat(5 - Math.floor(count))}
     </span>
   );
 }
@@ -63,7 +31,7 @@ function ProCard({ tech }) {
         <div className="pro-card__info">
           <div className="pro-card__name-row">
             <span className="pro-card__name">{tech.name}</span>
-            <AvailabilityTag status={tech.available} />
+            <AvailabilityTag status={tech.availability} />
           </div>
           <span className="pro-card__specialty">{tech.specialty}</span>
           <Stars count={tech.stars} />
@@ -78,10 +46,7 @@ function ProCard({ tech }) {
         >
           📱 WhatsApp
         </a>
-        <a
-          className="contact-btn contact-btn--call"
-          href={`tel:${tech.phone}`}
-        >
+        <a className="contact-btn contact-btn--call" href={`tel:${tech.phone}`}>
           📞 שיחה
         </a>
       </div>
@@ -90,11 +55,23 @@ function ProCard({ tech }) {
 }
 
 export default function TechniciansPage() {
+  const [technicians, setTechnicians] = useState([]);
   const [activeFilter, setActiveFilter] = useState('הכל');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('technicians')
+      .select('*, categories(name)')
+      .then(({ data }) => {
+        setTechnicians(data || []);
+        setLoading(false);
+      });
+  }, []);
 
   const filtered = activeFilter === 'הכל'
-    ? TECHNICIANS
-    : TECHNICIANS.filter((t) => t.category === activeFilter);
+    ? technicians
+    : technicians.filter((t) => t.categories?.name?.includes(activeFilter));
 
   return (
     <div className="page-container technicians-page">
@@ -102,7 +79,6 @@ export default function TechniciansPage() {
 
       <main className="technicians-page__content">
 
-        {/* Filter bar */}
         <div className="filter-bar" role="group" aria-label="סינון לפי קטגוריה">
           {FILTERS.map((f) => (
             <button
@@ -115,8 +91,9 @@ export default function TechniciansPage() {
           ))}
         </div>
 
-        {/* Technician cards */}
-        {filtered.length > 0 ? (
+        {loading ? (
+          <p className="loading-text">טוען...</p>
+        ) : filtered.length > 0 ? (
           <div className="pro-list">
             {filtered.map((tech) => (
               <ProCard key={tech.id} tech={tech} />

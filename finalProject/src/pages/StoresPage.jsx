@@ -1,30 +1,8 @@
+import { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './StoresPage.css';
-
-const STORES = [
-  {
-    id: 1,
-    name: 'פריקט חיפה',
-    address: 'רחוב הנמל 14, חיפה',
-    distance: '1.2 ק״מ ממך',
-    hours: 'א׳–ה׳ 08:00–19:00 | ו׳ 08:00–14:00',
-  },
-  {
-    id: 2,
-    name: 'בית אל-על חומרי בניין',
-    address: 'שד׳ מוריה 82, חיפה',
-    distance: '2.7 ק״מ ממך',
-    hours: 'א׳–ה׳ 07:30–18:30 | ו׳ 07:30–13:00',
-  },
-  {
-    id: 3,
-    name: 'סנטר שיפוצים',
-    address: 'רחוב חסן שוקרי 5, חיפה',
-    distance: '3.5 ק״מ ממך',
-    hours: 'א׳–ה׳ 09:00–20:00 | ו׳ 09:00–14:00',
-  },
-];
 
 function StoreCard({ store }) {
   return (
@@ -32,38 +10,64 @@ function StoreCard({ store }) {
       <div className="store-card__body">
         <div className="store-card__header">
           <span className="store-card__name">{store.name}</span>
-          <span className="store-card__distance">📍 {store.distance}</span>
+          <span className="store-card__distance">📍</span>
         </div>
         <p className="store-card__address">{store.address}</p>
         <p className="store-card__hours">🕐 {store.hours}</p>
       </div>
-      <a className="navigation-btn" href="#" onClick={(e) => e.preventDefault()}>
-        נווט עם Waze 🧭
-      </a>
+      {store.waze_link ? (
+        <a
+          className="navigation-btn"
+          href={store.waze_link}
+          target="_blank"
+          rel="noreferrer"
+        >
+          נווט עם Waze 🧭
+        </a>
+      ) : (
+        <button className="navigation-btn" disabled>
+          נווט עם Waze 🧭
+        </button>
+      )}
     </div>
   );
 }
 
 export default function StoresPage() {
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from('stores')
+      .select('*')
+      .then(({ data }) => {
+        setStores(data || []);
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <div className="page-container stores-page">
       <AppHeader title="חנויות ציוד קרובות" showBack={true} />
 
       <main className="stores-page__content">
 
-        {/* Map placeholder */}
         <div className="map-placeholder">
           <span className="map-placeholder__text">
             🗺️ מפה (תתחבר ל-Google Maps בשלב הבא)
           </span>
         </div>
 
-        {/* Store list */}
-        <div className="store-list">
-          {STORES.map((store) => (
-            <StoreCard key={store.id} store={store} />
-          ))}
-        </div>
+        {loading ? (
+          <p className="loading-text">טוען חנויות...</p>
+        ) : (
+          <div className="store-list">
+            {stores.map((store) => (
+              <StoreCard key={store.id} store={store} />
+            ))}
+          </div>
+        )}
 
       </main>
 

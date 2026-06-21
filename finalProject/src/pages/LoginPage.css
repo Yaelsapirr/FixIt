@@ -148,6 +148,18 @@
   opacity: 0.5;
 }
 
+/* Error */
+.login-error {
+  background: #fff0f0;
+  color: #c0392b;
+  border: 1px solid #f5c6c6;
+  border-radius: var(--border-radius-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-body-medium);
+  text-align: center;
+  direction: rtl;
+}
+
 /* Register */
 .login-register {
   text-align: center;

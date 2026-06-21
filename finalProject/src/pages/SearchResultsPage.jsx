@@ -1,4 +1,6 @@
+import { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './SearchResultsPage.css';
@@ -8,37 +10,6 @@ const DIFFICULTY_LABELS = {
   medium:   'בינוני',
   advanced: 'מתקדם',
 };
-
-const DUMMY_RESULTS = [
-  {
-    id: 'faucet-drip',
-    icon: '🔧',
-    title: 'ברז מטפטף — תיקון בסיסי',
-    difficulty: 'easy',
-    time: '20 דקות',
-  },
-  {
-    id: 'outlet-dead',
-    icon: '⚡',
-    title: 'שקע חשמל לא עובד — בדיקה ואיפוס',
-    difficulty: 'medium',
-    time: '30 דקות',
-  },
-  {
-    id: 'door-stuck',
-    icon: '🪟',
-    title: 'דלת לא נסגרת — כיוול צירים',
-    difficulty: 'easy',
-    time: '15 דקות',
-  },
-  {
-    id: 'ac-filter',
-    icon: '❄️',
-    title: 'מיזוג לא מקרר — ניקוי פילטר',
-    difficulty: 'advanced',
-    time: '45 דקות',
-  },
-];
 
 function DifficultyBadge({ level }) {
   return (
@@ -56,7 +27,7 @@ function ResultCard({ result }) {
         <span className="result-card__icon">{result.icon}</span>
         <div className="result-card__meta">
           <DifficultyBadge level={result.difficulty} />
-          <span className="result-card__time">⏱ {result.time}</span>
+          <span className="result-card__time">⏱ {result.time_estimate}</span>
         </div>
       </div>
       <h3 className="result-card__title">{result.title}</h3>
@@ -75,8 +46,7 @@ function EmptyState({ query }) {
     <div className="empty-state">
       <span className="empty-state__emoji">🔍</span>
       <p className="empty-state__message">
-        לא נמצאו תוצאות עבור
-        <strong> "{query}"</strong>
+        לא נמצאו תוצאות עבור <strong>"{query}"</strong>
       </p>
       <p className="empty-state__hint">נסה מילות חיפוש אחרות או עיין בקטגוריות</p>
     </div>
@@ -85,29 +55,72 @@ function EmptyState({ query }) {
 
 export default function SearchResultsPage() {
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('q') || searchParams.get('cat') || '';
+  const query = searchParams.get('q') || '';
+  const cat = searchParams.get('cat') || '';
+  const displayQuery = query || cat;
 
-  const hasResults = DUMMY_RESULTS.length > 0 && query.length > 0;
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchResults() {
+      setLoading(true);
+
+      if (cat) {
+        const { data: catData } = await supabase
+          .from('categories')
+          .select('id')
+          .ilike('name', `%${cat}%`)
+          .maybeSingle();
+
+        if (catData) {
+          const { data } = await supabase
+            .from('repair_guides')
+            .select('id, title, difficulty, time_estimate, icon')
+            .eq('category_id', catData.id);
+          setResults(data || []);
+        } else {
+          setResults([]);
+        }
+      } else if (query) {
+        const { data } = await supabase
+          .from('repair_guides')
+          .select('id, title, difficulty, time_estimate, icon')
+          .ilike('title', `%${query}%`);
+        setResults(data || []);
+      } else {
+        const { data } = await supabase
+          .from('repair_guides')
+          .select('id, title, difficulty, time_estimate, icon');
+        setResults(data || []);
+      }
+
+      setLoading(false);
+    }
+    fetchResults();
+  }, [query, cat]);
 
   return (
     <div className="page-container search-results-page">
       <AppHeader title="תוצאות חיפוש" showBack={true} />
 
       <main className="search-results-page__content">
-        {query && (
+        {displayQuery && (
           <p className="search-results-page__subtitle" dir="rtl">
-            תוצאות עבור: <strong>{query}</strong>
+            תוצאות עבור: <strong>{displayQuery}</strong>
           </p>
         )}
 
-        {hasResults ? (
+        {loading ? (
+          <p className="loading-text">טוען...</p>
+        ) : results.length > 0 ? (
           <div className="results-list">
-            {DUMMY_RESULTS.map((result) => (
+            {results.map((result) => (
               <ResultCard key={result.id} result={result} />
             ))}
           </div>
         ) : (
-          <EmptyState query={query} />
+          <EmptyState query={displayQuery} />
         )}
       </main>
 

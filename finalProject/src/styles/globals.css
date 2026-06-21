@@ -80,3 +80,19 @@ body {
     box-shadow: 0 0 48px rgba(0, 0, 0, 0.14);
   }
 }
+
+.loading-text {
+  text-align: center;
+  color: var(--color-on-surface);
+  opacity: 0.5;
+  padding: var(--spacing-xl) 0;
+  font-size: var(--font-size-body-large);
+}
+
+.profile-empty {
+  text-align: center;
+  color: var(--color-on-surface);
+  opacity: 0.5;
+  padding: var(--spacing-lg) 0;
+  font-size: var(--font-size-body-medium);
+}

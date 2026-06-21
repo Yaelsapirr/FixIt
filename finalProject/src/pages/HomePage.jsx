@@ -1,23 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './HomePage.css';
-
-const CATEGORIES = [
-  { emoji: '🔧', name: 'אינסטלציה' },
-  { emoji: '⚡', name: 'חשמל' },
-  { emoji: '🪟', name: 'חלונות ודלתות' },
-  { emoji: '🧱', name: 'ריצוף וטיח' },
-  { emoji: '❄️', name: 'מיזוג ותרמוסטט' },
-  { emoji: '🪛', name: 'כלי עבודה כלליים' },
-];
-
-const HISTORY = [
-  { id: 1, icon: '🔧', title: 'ברז מטפטף' },
-  { id: 2, icon: '⚡', title: 'שקע לא עובד' },
-  { id: 3, icon: '🪟', title: 'דלת לא נסגרת' },
-];
 
 function CategoryCard({ emoji, name }) {
   const navigate = useNavigate();
@@ -34,7 +20,26 @@ function CategoryCard({ emoji, name }) {
 
 export default function HomePage() {
   const [query, setQuery] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [history, setHistory] = useState([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.from('categories').select('*').then(({ data }) => {
+      if (data) setCategories(data);
+    });
+
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return;
+      supabase
+        .from('repair_history')
+        .select('id, repair_guides(id, title, icon)')
+        .eq('user_id', user.id)
+        .order('completed_at', { ascending: false })
+        .limit(3)
+        .then(({ data }) => { if (data) setHistory(data); });
+    });
+  }, []);
 
   function handleSearch(e) {
     e.preventDefault();
@@ -47,7 +52,6 @@ export default function HomePage() {
       <AppHeader />
 
       <main className="home-page__content">
-        {/* Search */}
         <section className="home-section">
           <form className="search-bar" onSubmit={handleSearch}>
             <input
@@ -64,34 +68,34 @@ export default function HomePage() {
           </form>
         </section>
 
-        {/* Categories */}
         <section className="home-section">
           <h2 className="home-section__title">קטגוריות</h2>
           <div className="category-grid">
-            {CATEGORIES.map((cat) => (
-              <CategoryCard key={cat.name} emoji={cat.emoji} name={cat.name} />
+            {categories.map((cat) => (
+              <CategoryCard key={cat.id} emoji={cat.emoji} name={cat.name} />
             ))}
           </div>
         </section>
 
-        {/* Recent History */}
-        <section className="home-section">
-          <h2 className="home-section__title">פעילות אחרונה</h2>
-          <div className="history-list">
-            {HISTORY.map((item) => (
-              <div key={item.id} className="history-item">
-                <span className="history-item__icon">{item.icon}</span>
-                <span className="history-item__title">{item.title}</span>
-                <Link
-                  className="history-item__link"
-                  to={`/search?q=${encodeURIComponent(item.title)}`}
-                >
-                  הצג מדריך
-                </Link>
-              </div>
-            ))}
-          </div>
-        </section>
+        {history.length > 0 && (
+          <section className="home-section">
+            <h2 className="home-section__title">פעילות אחרונה</h2>
+            <div className="history-list">
+              {history.map((item) => (
+                <div key={item.id} className="history-item">
+                  <span className="history-item__icon">{item.repair_guides?.icon}</span>
+                  <span className="history-item__title">{item.repair_guides?.title}</span>
+                  <Link
+                    className="history-item__link"
+                    to={`/guide/${item.repair_guides?.id}`}
+                  >
+                    הצג מדריך
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
 
       <Navbar />
