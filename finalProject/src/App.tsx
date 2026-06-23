@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -8,10 +9,29 @@ import SuccessPage from './pages/SuccessPage';
 import TechniciansPage from './pages/TechniciansPage';
 import StoresPage from './pages/StoresPage';
 import ProfilePage from './pages/ProfilePage';
+import { supabase } from './lib/supabase';
+
+// Redirects to /profile after a fresh Google OAuth sign-in
+function AuthHandler() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session && ['/', '/login'].includes(location.pathname)) {
+        navigate('/profile', { replace: true });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [navigate, location.pathname]);
+
+  return null;
+}
 
 export default function App() {
   return (
     <BrowserRouter>
+      <AuthHandler />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />

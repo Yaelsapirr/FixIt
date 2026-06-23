@@ -50,6 +50,7 @@ export default function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [googleMeta, setGoogleMeta] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -61,10 +62,17 @@ export default function ProfilePage() {
 
       setUserId(user.id);
 
-      // Ensure a users row exists (important for Google OAuth sign-ins)
+      const meta = user.user_metadata || {};
+      setGoogleMeta(meta);
+
+      // On first Google sign-in, persist the Google display name
+      const googleName = meta.full_name || meta.name || null;
       await supabase
         .from('users')
-        .upsert({ id: user.id, email: user.email }, { onConflict: 'id', ignoreDuplicates: true });
+        .upsert(
+          { id: user.id, email: user.email, ...(googleName ? { display_name: googleName } : {}) },
+          { onConflict: 'id', ignoreDuplicates: true }
+        );
 
       const [{ data: profileData }, { data: historyData }] = await Promise.all([
         supabase.from('users').select('*').eq('id', user.id).maybeSingle(),
@@ -99,8 +107,15 @@ export default function ProfilePage() {
 
   const totalSavings = history.reduce((sum, h) => sum + Number(h.savings || 0), 0);
 
-  const initials = profile?.display_name
-    ? profile.display_name.split(' ').map((w) => w[0]).join('').slice(0, 2)
+  const displayName = profile?.display_name
+    || googleMeta?.full_name
+    || googleMeta?.name
+    || '';
+
+  const googleAvatar = googleMeta?.picture || googleMeta?.avatar_url || null;
+
+  const initials = displayName
+    ? displayName.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
     : profile?.email?.[0]?.toUpperCase() || '?';
 
   if (loading) {
@@ -122,9 +137,12 @@ export default function ProfilePage() {
       <main className="profile-page__content">
 
         <section className="profile-user">
-          <div className="profile-user__avatar">{initials}</div>
+          {googleAvatar
+            ? <img className="profile-user__avatar profile-user__avatar--img" src={googleAvatar} alt={displayName} referrerPolicy="no-referrer" />
+            : <div className="profile-user__avatar">{initials}</div>
+          }
           <div className="profile-user__details">
-            <span className="profile-user__name">{profile?.display_name || 'משתמש'}</span>
+            <span className="profile-user__name">{displayName || 'משתמש'}</span>
             <span className="profile-user__email">{profile?.email}</span>
           </div>
           <button className="profile-edit-btn" onClick={() => setEditing(true)}>ערוך פרופיל</button>

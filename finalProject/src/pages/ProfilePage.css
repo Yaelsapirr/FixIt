@@ -35,6 +35,11 @@
   letter-spacing: 1px;
 }
 
+.profile-user__avatar--img {
+  object-fit: cover;
+  background: transparent;
+}
+
 .profile-user__details {
   display: flex;
   flex-direction: column;
