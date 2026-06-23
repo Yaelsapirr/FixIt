@@ -22,13 +22,13 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) { setError('אימייל או סיסמה שגויים'); return; }
-    navigate('/');
+    navigate('/profile');
   }
 
   async function handleGoogle() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: `${window.location.origin}/profile` },
     });
   }
 
