@@ -5,6 +5,43 @@ import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './ProfilePage.css';
 
+function EditModal({ profile, onSave, onClose }) {
+  const [name, setName] = useState(profile?.display_name || '');
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave() {
+    setSaving(true);
+    await onSave({ display_name: name });
+    setSaving(false);
+  }
+
+  return (
+    <div className="edit-modal-overlay" onClick={onClose}>
+      <div className="edit-modal" onClick={(e) => e.stopPropagation()}>
+        <h2 className="edit-modal__title">ערוך פרופיל</h2>
+        <div className="edit-field">
+          <label className="edit-field__label" htmlFor="edit-name">שם תצוגה</label>
+          <input
+            id="edit-name"
+            className="edit-field__input"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="הכנס שם"
+            dir="rtl"
+          />
+        </div>
+        <div className="edit-modal__actions">
+          <button className="edit-modal__save" onClick={handleSave} disabled={saving}>
+            {saving ? 'שומר...' : 'שמור'}
+          </button>
+          <button className="edit-modal__cancel" onClick={onClose}>ביטול</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function formatDate(dateStr) {
   return new Date(dateStr).toLocaleDateString('he-IL');
 }
@@ -12,13 +49,22 @@ function formatDate(dateStr) {
 export default function ProfilePage() {
   const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
+  const [userId, setUserId] = useState(null);
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { navigate('/login'); return; }
+
+      setUserId(user.id);
+
+      // Ensure a users row exists (important for Google OAuth sign-ins)
+      await supabase
+        .from('users')
+        .upsert({ id: user.id, email: user.email }, { onConflict: 'id', ignoreDuplicates: true });
 
       const [{ data: profileData }, { data: historyData }] = await Promise.all([
         supabase.from('users').select('*').eq('id', user.id).maybeSingle(),
@@ -39,6 +85,16 @@ export default function ProfilePage() {
   async function handleLogout() {
     await supabase.auth.signOut();
     navigate('/login');
+  }
+
+  async function handleSaveProfile(updates) {
+    const { error } = await supabase
+      .from('users')
+      .upsert({ id: userId, ...updates });
+    if (!error) {
+      setProfile((p) => ({ ...p, ...updates }));
+      setEditing(false);
+    }
   }
 
   const totalSavings = history.reduce((sum, h) => sum + Number(h.savings || 0), 0);
@@ -71,7 +127,7 @@ export default function ProfilePage() {
             <span className="profile-user__name">{profile?.display_name || 'משתמש'}</span>
             <span className="profile-user__email">{profile?.email}</span>
           </div>
-          <button className="profile-edit-btn">ערוך פרופיל</button>
+          <button className="profile-edit-btn" onClick={() => setEditing(true)}>ערוך פרופיל</button>
         </section>
 
         <div className="stats-row">
@@ -95,6 +151,9 @@ export default function ProfilePage() {
                 <div key={item.id} className="history-row">
                   <span className="history-row__done">✅</span>
                   <span className="history-row__repair">{item.repair_guides?.title}</span>
+                  {item.savings > 0 && (
+                    <span className="history-row__savings">₪{item.savings}</span>
+                  )}
                   <span className="history-row__date">{formatDate(item.completed_at)}</span>
                 </div>
               ))}
@@ -107,6 +166,14 @@ export default function ProfilePage() {
         </button>
 
       </main>
+
+      {editing && (
+        <EditModal
+          profile={profile}
+          onSave={handleSaveProfile}
+          onClose={() => setEditing(false)}
+        />
+      )}
 
       <Navbar />
     </div>
