@@ -28,7 +28,7 @@ export default function LoginPage() {
   async function handleGoogle() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: `${window.location.origin}/profile` },
+      options: { redirectTo: window.location.origin },
     });
   }
 
