@@ -212,3 +212,15 @@
   color: var(--color-on-surface);
   border: 1.5px solid var(--color-outline-variant);
 }
+
+.action-btn--save {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+  border: 1.5px solid var(--color-outline-variant);
+}
+
+.action-btn--saved {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  border: 1.5px solid var(--color-primary);
+}

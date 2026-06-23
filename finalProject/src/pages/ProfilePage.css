@@ -47,16 +47,28 @@
   gap: 2px;
 }
 
-.profile-user__name {
+.profile-user__greeting {
   font-size: var(--font-size-title);
-  font-weight: 700;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.profile-user__name {
+  font-size: var(--font-size-body-large);
+  font-weight: 600;
   color: var(--color-on-surface);
+}
+
+.profile-user__city {
+  font-size: var(--font-size-body-medium);
+  color: var(--color-on-surface);
+  opacity: 0.7;
 }
 
 .profile-user__email {
   font-size: var(--font-size-body-medium);
   color: var(--color-on-surface);
-  opacity: 0.6;
+  opacity: 0.5;
   direction: ltr;
 }
 
@@ -260,6 +272,29 @@
   font-size: var(--font-size-body-large);
   font-weight: 600;
   cursor: pointer;
+}
+
+/* Savings message */
+.savings-message {
+  background: var(--color-primary-container);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.savings-message__label {
+  font-size: var(--font-size-body-medium);
+  color: var(--color-on-primary-container);
+  opacity: 0.75;
+}
+
+.savings-message__text {
+  font-size: var(--font-size-body-large);
+  font-weight: 700;
+  color: var(--color-on-primary-container);
 }
 
 /* Logout */

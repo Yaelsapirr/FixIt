@@ -39,20 +39,29 @@ function InstructionStep({ step, checked, onChange }) {
 export default function RepairGuidePage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [guide, setGuide] = useState(null);
-  const [steps, setSteps] = useState([]);
+  const [guide,   setGuide]   = useState(null);
+  const [steps,   setSteps]   = useState([]);
   const [checked, setChecked] = useState({});
   const [loading, setLoading] = useState(true);
+  const [saved,   setSaved]   = useState(false);
+  const [userId,  setUserId]  = useState(null);
 
   useEffect(() => {
     async function fetchGuide() {
-      const [{ data: guideData }, { data: stepsData }] = await Promise.all([
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) setUserId(user.id);
+
+      const [{ data: guideData }, { data: stepsData }, { data: savedData }] = await Promise.all([
         supabase.from('repair_guides').select('*').eq('id', id).maybeSingle(),
         supabase.from('guide_steps').select('*').eq('guide_id', id).order('step_order'),
+        user
+          ? supabase.from('saved_repairs').select('guide_id').eq('user_id', user.id).eq('guide_id', id).maybeSingle()
+          : Promise.resolve({ data: null }),
       ]);
       setGuide(guideData);
       setSteps(stepsData || []);
       setChecked(Object.fromEntries((stepsData || []).map((s) => [s.id, false])));
+      setSaved(!!savedData);
       setLoading(false);
     }
     fetchGuide();
@@ -60,6 +69,17 @@ export default function RepairGuidePage() {
 
   function toggleStep(stepId) {
     setChecked((prev) => ({ ...prev, [stepId]: !prev[stepId] }));
+  }
+
+  async function handleToggleSave() {
+    if (!userId) { navigate('/login'); return; }
+    if (saved) {
+      await supabase.from('saved_repairs').delete().eq('user_id', userId).eq('guide_id', id);
+      setSaved(false);
+    } else {
+      await supabase.from('saved_repairs').upsert({ user_id: userId, guide_id: id });
+      setSaved(true);
+    }
   }
 
   async function handleDone() {
@@ -136,6 +156,12 @@ export default function RepairGuidePage() {
         <div className="repair-guide-page__actions">
           <button className="action-btn action-btn--primary" onClick={handleDone}>
             ✅ סיימתי לתקן!
+          </button>
+          <button
+            className={`action-btn action-btn--save${saved ? ' action-btn--saved' : ''}`}
+            onClick={handleToggleSave}
+          >
+            {saved ? '🔖 שמור' : '🔖 שמור לאחר כך'}
           </button>
           <button
             className="action-btn action-btn--secondary"

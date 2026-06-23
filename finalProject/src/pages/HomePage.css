@@ -12,6 +12,15 @@
   padding: var(--spacing-lg) var(--margin-mobile);
 }
 
+/* Greeting */
+.home-greeting {
+  font-size: var(--font-size-title);
+  font-weight: 700;
+  color: var(--color-primary);
+  text-align: right;
+  direction: rtl;
+}
+
 /* Section */
 .home-section__title {
   font-size: var(--font-size-title);

@@ -19,9 +19,10 @@ function CategoryCard({ emoji, name }) {
 }
 
 export default function HomePage() {
-  const [query, setQuery] = useState('');
+  const [query,      setQuery]      = useState('');
   const [categories, setCategories] = useState([]);
-  const [history, setHistory] = useState([]);
+  const [history,    setHistory]    = useState([]);
+  const [firstName,  setFirstName]  = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,6 +32,15 @@ export default function HomePage() {
 
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) return;
+
+      const meta = user.user_metadata || {};
+      const googleFirst = (meta.full_name || meta.name || '').split(' ')[0];
+
+      supabase.from('users').select('first_name').eq('id', user.id).maybeSingle()
+        .then(({ data }) => {
+          setFirstName(data?.first_name || googleFirst || '');
+        });
+
       supabase
         .from('repair_history')
         .select('id, repair_guides(id, title, icon)')
@@ -52,6 +62,10 @@ export default function HomePage() {
       <AppHeader />
 
       <main className="home-page__content">
+        {firstName && (
+          <p className="home-greeting">שלום, {firstName}! 👋</p>
+        )}
+
         <section className="home-section">
           <form className="search-bar" onSubmit={handleSearch}>
             <input
