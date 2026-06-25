@@ -73,8 +73,12 @@ export default function AiChatPage() {
         data.candidates[0].content &&
         data.candidates[0].content.parts &&
         data.candidates[0].content.parts[0].text;
+      const errorCode = data.error && data.error.code;
+      const errText = errorCode === 429
+        ? 'השירות עמוס כרגע, אנא נסי שוב בעוד כמה שניות.'
+        : 'לא הצלחתי לענות. נסי שוב.';
       setMessages(function(prev) {
-        return prev.concat([{ role: 'ai', text: reply || 'לא הצלחתי לענות. נסי שוב.' }]);
+        return prev.concat([{ role: 'ai', text: reply || errText }]);
       });
     } catch (e) {
       setMessages(function(prev) {

@@ -7,6 +7,29 @@ import './RepairGuidePage.css';
 
 const YT_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
+const YT_QUERY_MAP = {
+  'faucet-drip':     'how to fix a dripping faucet DIY',
+  'outlet-dead':     'dead electrical outlet reset GFCI DIY',
+  'door-stuck':      'door hinge adjustment fix door not closing',
+  'ac-filter':       'air conditioner filter cleaning DIY',
+  'toilet-flush':    'toilet flush mechanism repair DIY',
+  'pipe-leak':       'how to fix a leaking pipe DIY',
+  'drain-clog':      'unclog drain without chemicals DIY',
+  'toilet-run':      'running toilet flapper replacement fix',
+  'water-pressure':  'low water pressure fix home DIY',
+  'circuit-breaker': 'circuit breaker tripped reset how to',
+  'light-flickering':'flickering light fix electrical DIY',
+  'ceiling-fan':     'ceiling fan not working repair DIY',
+  'dimmer-switch':   'dimmer switch not working repair replace',
+  'extension-cord':  'power strip outlet not working fix',
+  'door-handle':     'door handle replacement repair DIY',
+  'door-squeaky':    'squeaky door hinge fix lubrication',
+  'sliding-door':    'sliding door stuck adjustment repair',
+  'window-draft':    'window draft seal weatherstripping DIY',
+  'window-lock':     'window lock repair stuck fix',
+  'floor-tile':      'how to replace a broken floor tile DIY',
+};
+
 function SafetyAlert({ text }) {
   return (
     <div className="safety-alert" role="alert">
@@ -38,14 +61,15 @@ function InstructionStep({ step, checked, onChange }) {
   );
 }
 
-function YouTubeEmbed({ query }) {
+function YouTubeEmbed({ guideId }) {
   const [videoId, setVideoId] = useState(null);
 
   useEffect(() => {
-    if (!YT_KEY || !query) return;
+    if (!YT_KEY || !guideId) return;
+    const query = YT_QUERY_MAP[guideId] || 'home repair DIY';
     const url =
       'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1' +
-      '&relevanceLanguage=iw&q=' + encodeURIComponent(query + ' תיקון DIY') +
+      '&q=' + encodeURIComponent(query) +
       '&key=' + YT_KEY;
     fetch(url)
       .then(function(r) { return r.json(); })
@@ -54,7 +78,7 @@ function YouTubeEmbed({ query }) {
         if (id) setVideoId(id);
       })
       .catch(function() {});
-  }, [query]);
+  }, [guideId]);
 
   if (!YT_KEY || !videoId) return null;
 
@@ -166,7 +190,7 @@ export default function RepairGuidePage() {
 
         {guide.safety_note && <SafetyAlert text={guide.safety_note} />}
 
-        <YouTubeEmbed query={guide.title} />
+        <YouTubeEmbed guideId={id} />
 
         <section className="guide-section">
           <h3 className="guide-section__title">ציוד נדרש</h3>
