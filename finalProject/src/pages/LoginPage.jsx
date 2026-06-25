@@ -27,11 +27,19 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     setError('');
-    const { error } = await supabase.auth.signInWithOAuth({
+    console.log('[Auth] Starting Google OAuth, redirectTo:', window.location.origin);
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin },
+      options: { redirectTo: window.location.origin, skipBrowserRedirect: true },
     });
-    if (error) setError(error.message);
+    console.log('[Auth] signInWithOAuth result:', { url: data?.url, error });
+    if (error) { setError('שגיאה: ' + error.message); return; }
+    if (data?.url) {
+      setError('מועבר לגוגל...');
+      window.location.href = data.url;
+    } else {
+      setError('לא התקבל URL — בדקי את הגדרות הספק בסופבייס');
+    }
   }
 
   async function handleRegister() {
