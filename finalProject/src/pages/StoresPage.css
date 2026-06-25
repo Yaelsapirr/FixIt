@@ -90,6 +90,16 @@
   line-height: 1.5;
 }
 
+/* Location notice */
+.stores-loc-note {
+  font-size: var(--font-size-body-medium);
+  color: var(--color-on-surface);
+  opacity: 0.65;
+  text-align: right;
+  direction: rtl;
+  padding: var(--spacing-xs) 0;
+}
+
 /* Navigation button */
 .navigation-btn {
   display: block;
