@@ -5,6 +5,8 @@ import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './RepairGuidePage.css';
 
+const YT_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+
 function SafetyAlert({ text }) {
   return (
     <div className="safety-alert" role="alert">
@@ -33,6 +35,43 @@ function InstructionStep({ step, checked, onChange }) {
         </label>
       </div>
     </div>
+  );
+}
+
+function YouTubeEmbed({ query }) {
+  const [videoId, setVideoId] = useState(null);
+
+  useEffect(() => {
+    if (!YT_KEY || !query) return;
+    const url =
+      'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1' +
+      '&relevanceLanguage=iw&q=' + encodeURIComponent(query + ' תיקון DIY') +
+      '&key=' + YT_KEY;
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        const id = data.items && data.items[0] && data.items[0].id && data.items[0].id.videoId;
+        if (id) setVideoId(id);
+      })
+      .catch(function() {});
+  }, [query]);
+
+  if (!YT_KEY || !videoId) return null;
+
+  return (
+    <section className="guide-section">
+      <h3 className="guide-section__title">סרטון הדרכה</h3>
+      <div className="yt-wrapper">
+        <iframe
+          className="yt-embed"
+          src={'https://www.youtube.com/embed/' + videoId}
+          title="סרטון הדרכה"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      </div>
+    </section>
   );
 }
 
@@ -127,6 +166,8 @@ export default function RepairGuidePage() {
 
         {guide.safety_note && <SafetyAlert text={guide.safety_note} />}
 
+        <YouTubeEmbed query={guide.title} />
+
         <section className="guide-section">
           <h3 className="guide-section__title">ציוד נדרש</h3>
           <ul className="tool-list">
@@ -155,19 +196,19 @@ export default function RepairGuidePage() {
 
         <div className="repair-guide-page__actions">
           <button className="action-btn action-btn--primary" onClick={handleDone}>
-            ✅ סיימתי לתקן!
+            סיימתי לתקן!
           </button>
           <button
             className={`action-btn action-btn--save${saved ? ' action-btn--saved' : ''}`}
             onClick={handleToggleSave}
           >
-            {saved ? '🔖 שמור' : '🔖 שמור לאחר כך'}
+            {saved ? 'שמור' : 'שמור לאחר כך'}
           </button>
           <button
             className="action-btn action-btn--secondary"
             onClick={() => navigate('/technicians')}
           >
-            📞 קרא לטכנאי
+            קרא לטכנאי
           </button>
         </div>
       </main>

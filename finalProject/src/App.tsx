@@ -9,16 +9,15 @@ import SuccessPage from './pages/SuccessPage';
 import TechniciansPage from './pages/TechniciansPage';
 import StoresPage from './pages/StoresPage';
 import ProfilePage from './pages/ProfilePage';
+import AiChatPage from './pages/AiChatPage';
 import { supabase } from './lib/supabase';
 
-// Redirects to /profile after a fresh sign-in (email or Google OAuth)
 function AuthHandler() {
   const navigate = useNavigate();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        // Read current path at event time (avoids stale closure)
         const path = window.location.pathname;
         if (path === '/' || path === '/login') {
           navigate('/profile', { replace: true });
@@ -44,6 +43,7 @@ export default function App() {
         <Route path="/success" element={<SuccessPage />} />
         <Route path="/technicians" element={<TechniciansPage />} />
         <Route path="/stores" element={<StoresPage />} />
+        <Route path="/ai" element={<AiChatPage />} />
         <Route
           path="/profile"
           element={

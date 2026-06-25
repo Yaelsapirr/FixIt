@@ -224,3 +224,21 @@
   color: var(--color-on-primary-container);
   border: 1.5px solid var(--color-primary);
 }
+
+/* YouTube embed */
+.yt-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: #000;
+}
+
+.yt-embed {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
