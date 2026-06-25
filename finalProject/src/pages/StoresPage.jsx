@@ -4,6 +4,8 @@ import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './StoresPage.css';
 
+const RADIUS_KM = 5;
+
 function haversineKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
@@ -17,8 +19,8 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 function formatDist(km) {
-  if (km < 1) return Math.round(km * 1000) + " m'";
-  return km.toFixed(1) + ' km';
+  if (km < 1) return Math.round(km * 1000) + " מ'";
+  return km.toFixed(1) + ' ק"מ';
 }
 
 function StoreCard({ store }) {
@@ -41,10 +43,10 @@ function StoreCard({ store }) {
       </div>
       {wazeLink ? (
         <a className="navigation-btn" href={wazeLink} target="_blank" rel="noreferrer">
-          Waze
+          נווט עם Waze
         </a>
       ) : (
-        <button className="navigation-btn" disabled>Waze</button>
+        <button className="navigation-btn" disabled>נווט עם Waze</button>
       )}
     </div>
   );
@@ -71,7 +73,7 @@ export default function StoresPage() {
         function(pos) {
           const lat = pos.coords.latitude;
           const lon = pos.coords.longitude;
-          const withDist = rawStores
+          const nearby = rawStores
             .map(function(s) {
               return Object.assign({}, s, {
                 distKm:
@@ -80,11 +82,13 @@ export default function StoresPage() {
                     : null,
               });
             })
+            .filter(function(s) {
+              return s.distKm !== null && s.distKm <= RADIUS_KM;
+            })
             .sort(function(a, b) {
-              return (a.distKm !== null ? a.distKm : Infinity) -
-                     (b.distKm !== null ? b.distKm : Infinity);
+              return a.distKm - b.distKm;
             });
-          setStores(withDist);
+          setStores(nearby);
           setLocStatus('ok');
           setLoading(false);
         },
@@ -101,16 +105,20 @@ export default function StoresPage() {
 
   return (
     <div className="page-container stores-page">
-      <AppHeader title="stores" showBack={true} />
+      <AppHeader title="חנויות ציוד קרובות" showBack={true} />
       <main className="stores-page__content">
+
         {locStatus === 'denied' && (
-          <p className="stores-loc-note">location denied</p>
+          <p className="stores-loc-note">לא ניתן לגשת למיקום — מציג את כל החנויות</p>
         )}
         {locStatus === 'unavailable' && (
-          <p className="stores-loc-note">location unavailable</p>
+          <p className="stores-loc-note">מיקום לא זמין בדפדפן זה</p>
         )}
+
         {loading ? (
-          <p className="loading-text">loading...</p>
+          <p className="loading-text">מאתר חנויות קרובות...</p>
+        ) : stores.length === 0 && locStatus === 'ok' ? (
+          <p className="stores-loc-note">לא נמצאו חנויות בטווח של 5 ק"מ ממיקומך</p>
         ) : (
           <div className="store-list">
             {stores.map(function(store) {
@@ -118,6 +126,7 @@ export default function StoresPage() {
             })}
           </div>
         )}
+
       </main>
       <Navbar />
     </div>
