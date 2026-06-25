@@ -1,4 +1,4 @@
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -7,8 +7,7 @@ module.exports = async function handler(req, res) {
 
   const key = process.env.GEMINI_API_KEY || process.env.VITE_GEMINI_API_KEY;
   if (!key) {
-    const available = Object.keys(process.env).filter(function(k) { return !k.startsWith('npm_'); }).join(',');
-    res.status(500).json({ error: 'No API key configured', available: available });
+    res.status(500).json({ error: 'No API key configured' });
     return;
   }
 
@@ -26,4 +25,4 @@ module.exports = async function handler(req, res) {
   } catch (err) {
     res.status(500).json({ error: 'Proxy error', details: err.message });
   }
-};
+}
