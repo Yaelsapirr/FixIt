@@ -3,10 +3,18 @@ import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './AiChatPage.css';
 
-
 const API_URL = '/api/gemini';
 
-const SYSTEM_PROMPT = 'אתה עוזר בית חכם בשם FixIt AI. אתה מסייע לאנשים לאבחן ולפתור בעיות בית נפוצות כמו אינסטלציה, חשמל, ריצוף, דלתות וחלונות, מיזוג ועוד. ענה תמיד בעברית, בצורה ברורה ומובנת. אם הבעיה מסוכנת (חשמל, גז) — המלץ לפנות לאיש מקצוע. היה ידידותי, מעשי וקצר.';
+const SYSTEM_PROMPT = 'אתה עוזר בית חכם בשם FixIt AI. אתה מסייע לאנשים לאבחן ולפתור בעיות בית נפוצות כמו אינסטלציה, חשמל, ריצוף, דלתות וחלונות, מיזוג ועוד. ענה תמיד בעברית, בצורה ברורה, מובנת ומעשית. פרט שלבים קצרים וממוספרים כשרלוונטי. אם הבעיה מסוכנת (חשמל, גז) המלץ לפנות לאיש מקצוע. היה ידידותי וקצר.';
+
+const STARTERS = [
+  { label: 'הברז מטפטף', prompt: 'הברז שלי במטבח מטפטף כל הזמן, איך לתקן?' },
+  { label: 'שקע לא עובד', prompt: 'יש לי שקע חשמל שהפסיק לעבוד, מה לבדוק?' },
+  { label: 'דלת לא נסגרת', prompt: 'הדלת שלי לא נסגרת טוב, מה הסיבה ואיך לתקן?' },
+  { label: 'מיזוג לא מקרר', prompt: 'המיזוג עובד אבל לא מקרר, מה הבעיה?' },
+  { label: 'ריצוף שבור', prompt: 'אריח ריצוף נשבר, איך להחליף אותו?' },
+  { label: 'נזילה בתקרה', prompt: 'יש לי כתם רטיבות בתקרה, מה הסיבות האפשריות ומה לעשות?' },
+];
 
 function Message({ msg }) {
   const isUser = msg.role === 'user';
@@ -21,10 +29,11 @@ function Message({ msg }) {
 
 export default function AiChatPage() {
   const [messages, setMessages] = useState([
-    { role: 'ai', text: 'שלום! אני FixIt AI 🔧 איזו בעיה בבית אוכל לעזור לך לפתור?' }
+    { role: 'ai', text: 'שלום! אני FixIt AI 🔧 תבחרו נושא או תכתבו את הבעיה שלכם:' }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [started, setStarted] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(function() {
@@ -33,21 +42,12 @@ export default function AiChatPage() {
     }
   }, [messages]);
 
-  async function sendMessage() {
-    const text = input.trim();
-    if (!text || loading) return;
-    if (false) {
-      setMessages(function(prev) {
-        return prev.concat([
-          { role: 'user', text: text },
-          { role: 'ai', text: 'חסר VITE_GEMINI_API_KEY ב-.env — הוסיפי את המפתח כדי להשתמש בעוזר AI.' }
-        ]);
-      });
-      setInput('');
-      return;
-    }
+  async function sendMessage(text) {
+    const trimmed = (text || input).trim();
+    if (!trimmed || loading) return;
+    setStarted(true);
 
-    const newMessages = messages.concat([{ role: 'user', text: text }]);
+    const newMessages = messages.concat([{ role: 'user', text: trimmed }]);
     setMessages(newMessages);
     setInput('');
     setLoading(true);
@@ -74,7 +74,7 @@ export default function AiChatPage() {
         data.candidates[0].content.parts &&
         data.candidates[0].content.parts[0].text;
       setMessages(function(prev) {
-        return prev.concat([{ role: 'ai', text: reply || 'מצטערת, לא הצלחתי לענות. נסי שוב.' }]);
+        return prev.concat([{ role: 'ai', text: reply || 'לא הצלחתי לענות. נסי שוב.' }]);
       });
     } catch (e) {
       setMessages(function(prev) {
@@ -100,6 +100,23 @@ export default function AiChatPage() {
         {messages.map(function(msg, i) {
           return <Message key={i} msg={msg} />;
         })}
+
+        {!started && (
+          <div className="chat-starters">
+            {STARTERS.map(function(s) {
+              return (
+                <button
+                  key={s.label}
+                  className="chat-starter-btn"
+                  onClick={function() { sendMessage(s.prompt); }}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
         {loading && (
           <div className="chat-msg chat-msg--ai">
             <span className="chat-msg__avatar">🤖</span>
@@ -123,7 +140,7 @@ export default function AiChatPage() {
         />
         <button
           className="ai-chat-page__send"
-          onClick={sendMessage}
+          onClick={function() { sendMessage(); }}
           disabled={loading || !input.trim()}
           aria-label="שלח"
         >

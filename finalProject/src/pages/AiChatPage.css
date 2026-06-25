@@ -131,3 +131,31 @@
   0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
   40%            { transform: translateY(-6px); opacity: 1; }
 }
+
+/* Quick start buttons */
+.chat-starters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  direction: rtl;
+}
+
+.chat-starter-btn {
+  background: var(--color-surface-container);
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: 20px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  font-family: var(--font-family);
+  font-size: var(--font-size-body-medium);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  direction: rtl;
+}
+
+.chat-starter-btn:active {
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+}
