@@ -17,14 +17,14 @@ function haversineKm(lat1, lon1, lat2, lon2) {
 }
 
 function formatDist(km) {
-  if (km < 1) return `${Math.round(km * 1000)} מ'`;
-  return `${km.toFixed(1)} ק"מ`;
+  if (km < 1) return Math.round(km * 1000) + " m'";
+  return km.toFixed(1) + ' km';
 }
 
 function StoreCard({ store }) {
   const wazeLink =
     store.latitude && store.longitude
-      ? `https://waze.com/ul?ll=${store.latitude},${store.longitude}&navigate=yes`
+      ? 'https://waze.com/ul?ll=' + store.latitude + ',' + store.longitude + '&navigate=yes'
       : store.waze_link;
 
   return (
@@ -33,27 +33,27 @@ function StoreCard({ store }) {
         <div className="store-card__header">
           <span className="store-card__name">{store.name}</span>
           {store.distKm != null && (
-            <span className="store-card__distance">📍 {formatDist(store.distKm)}</span>
+            <span className="store-card__distance">{formatDist(store.distKm)}</span>
           )}
         </div>
         <p className="store-card__address">{store.address}</p>
-        <p className="store-card__hours">🕐 {store.hours}</p>
+        <p className="store-card__hours">{store.hours}</p>
       </div>
       {wazeLink ? (
         <a className="navigation-btn" href={wazeLink} target="_blank" rel="noreferrer">
-          נווט עם Waze 🧭
+          Waze
         </a>
       ) : (
-        <button className="navigation-btn" disabled>נווט עם Waze 🧭</button>
+        <button className="navigation-btn" disabled>Waze</button>
       )}
     </div>
   );
 }
 
 export default function StoresPage() {
-  const [stores,      setStores]      = useState([]);
-  const [loading,     setLoading]     = useState(true);
-  const [locStatus,   setLocStatus]   = useState('loading'); // loading | ok | denied | unavailable
+  const [stores, setStores] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [locStatus, setLocStatus] = useState('loading');
 
   useEffect(() => {
     async function init() {
@@ -68,22 +68,27 @@ export default function StoresPage() {
       }
 
       navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
+        function(pos) {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
           const withDist = rawStores
-            .map((s) => ({
-              ...s,
-              distKm:
-                s.latitude && s.longitude
-                  ? haversineKm(latitude, longitude, Number(s.latitude), Number(s.longitude))
-                  : null,
-            }))
-            .sort((a, b) => (a.distKm ?? Infinity) - (b.distKm ?? Infinity));
+            .map(function(s) {
+              return Object.assign({}, s, {
+                distKm:
+                  s.latitude && s.longitude
+                    ? haversineKm(lat, lon, Number(s.latitude), Number(s.longitude))
+                    : null,
+              });
+            })
+            .sort(function(a, b) {
+              return (a.distKm !== null ? a.distKm : Infinity) -
+                     (b.distKm !== null ? b.distKm : Infinity);
+            });
           setStores(withDist);
           setLocStatus('ok');
           setLoading(false);
         },
-        () => {
+        function() {
           setLocStatus('denied');
           setStores(rawStores);
           setLoading(false);
@@ -96,29 +101,24 @@ export default function StoresPage() {
 
   return (
     <div className="page-container stores-page">
-      <AppHeader title="חנויות ציוד קרובות" showBack={true} />
-
+      <AppHeader title="stores" showBack={true} />
       <main className="stores-page__content">
-
         {locStatus === 'denied' && (
-          <p className="stores-loc-note">⚠️ לא ניתן לגשת למיקום — מציג את כל החנויות</p>
+          <p className="stores-loc-note">location denied</p>
         )}
         {locStatus === 'unavailable' && (
-          <p className="stores-loc-note">📍 מיקום לא זמין בדפדפן זה</p>
+          <p className="stores-loc-note">location unavailable</p>
         )}
-
         {loading ? (
-          <p className="loading-text">מאתר חנויות קרובות...</p>
+          <p className="loading-text">loading...</p>
         ) : (
           <div className="store-list">
-            {stores.map((store) => (
-              <StoreCard key={store.id} store={store} />
-            ))}
+            {stores.map(function(store) {
+              return <StoreCard key={store.id} store={store} />;
+            })}
           </div>
         )}
-
       </main>
-
       <Navbar />
     </div>
   );
