@@ -3,8 +3,8 @@ import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './AiChatPage.css';
 
-const GEMINI_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + GEMINI_KEY;
+
+const API_URL = '/api/gemini';
 
 const SYSTEM_PROMPT = 'אתה עוזר בית חכם בשם FixIt AI. אתה מסייע לאנשים לאבחן ולפתור בעיות בית נפוצות כמו אינסטלציה, חשמל, ריצוף, דלתות וחלונות, מיזוג ועוד. ענה תמיד בעברית, בצורה ברורה ומובנת. אם הבעיה מסוכנת (חשמל, גז) — המלץ לפנות לאיש מקצוע. היה ידידותי, מעשי וקצר.';
 
@@ -36,7 +36,7 @@ export default function AiChatPage() {
   async function sendMessage() {
     const text = input.trim();
     if (!text || loading) return;
-    if (!GEMINI_KEY) {
+    if (false) {
       setMessages(function(prev) {
         return prev.concat([
           { role: 'user', text: text },
