@@ -22,24 +22,14 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) { setError('אימייל או סיסמה שגויים'); return; }
-    navigate('/');
+    navigate('/profile', { replace: true });
   }
 
   async function handleGoogle() {
-    setError('');
-    console.log('[Auth] Starting Google OAuth, redirectTo:', window.location.origin);
-    const { data, error } = await supabase.auth.signInWithOAuth({
+    await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: window.location.origin, skipBrowserRedirect: true },
+      options: { redirectTo: window.location.origin },
     });
-    console.log('[Auth] signInWithOAuth result:', { url: data?.url, error });
-    if (error) { setError('שגיאה: ' + error.message); return; }
-    if (data?.url) {
-      setError('מועבר לגוגל...');
-      window.location.href = data.url;
-    } else {
-      setError('לא התקבל URL — בדקי את הגדרות הספק בסופבייס');
-    }
   }
 
   async function handleRegister() {

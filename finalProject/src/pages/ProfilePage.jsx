@@ -76,44 +76,50 @@ export default function ProfilePage() {
 
   useEffect(() => {
     async function fetchProfile() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { navigate('/login'); return; }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) { navigate('/login'); return; }
 
-      setUserId(user.id);
-      const meta = user.user_metadata || {};
-      setGoogleMeta(meta);
+        setUserId(user.id);
+        const meta = user.user_metadata || {};
+        setGoogleMeta(meta);
 
-      const googleName = meta.full_name || meta.name || null;
-      const gFirst = googleName ? googleName.split(' ')[0] : null;
-      const gLast  = googleName ? googleName.split(' ').slice(1).join(' ') || null : null;
+        const googleName = meta.full_name || meta.name || null;
+        const gFirst = googleName ? googleName.split(' ')[0] : null;
+        const gLast  = googleName ? googleName.split(' ').slice(1).join(' ') || null : null;
 
-      await supabase.from('users').upsert(
-        {
-          id: user.id,
-          email: user.email,
-          ...(googleName ? { display_name: googleName, first_name: gFirst, last_name: gLast } : {}),
-        },
-        { onConflict: 'id', ignoreDuplicates: true }
-      );
+        // upsert without ignoreDuplicates so Google name always syncs
+        await supabase.from('users').upsert(
+          {
+            id: user.id,
+            email: user.email,
+            ...(googleName ? { display_name: googleName, first_name: gFirst, last_name: gLast } : {}),
+          },
+          { onConflict: 'id', ignoreDuplicates: false }
+        );
 
-      const [{ data: profileData }, { data: historyData }, { data: savedData }] = await Promise.all([
-        supabase.from('users').select('*').eq('id', user.id).maybeSingle(),
-        supabase
-          .from('repair_history')
-          .select('id, completed_at, savings, repair_guides(title)')
-          .eq('user_id', user.id)
-          .order('completed_at', { ascending: false }),
-        supabase
-          .from('saved_repairs')
-          .select('guide_id, saved_at, repair_guides(title)')
-          .eq('user_id', user.id)
-          .order('saved_at', { ascending: false }),
-      ]);
+        const [{ data: profileData }, { data: historyData }, { data: savedData }] = await Promise.all([
+          supabase.from('users').select('*').eq('id', user.id).maybeSingle(),
+          supabase
+            .from('repair_history')
+            .select('id, completed_at, savings, repair_guides(title)')
+            .eq('user_id', user.id)
+            .order('completed_at', { ascending: false }),
+          supabase
+            .from('saved_repairs')
+            .select('guide_id, saved_at, repair_guides(title)')
+            .eq('user_id', user.id)
+            .order('saved_at', { ascending: false }),
+        ]);
 
-      setProfile({ ...profileData, email: user.email });
-      setHistory(historyData || []);
-      setSaved(savedData || []);
-      setLoading(false);
+        setProfile({ ...profileData, email: user.email });
+        setHistory(historyData || []);
+        setSaved(savedData || []);
+      } catch (err) {
+        console.error('Profile fetch error:', err);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchProfile();
   }, []);

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import ProtectedRoute from './components/ProtectedRoute';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
@@ -11,19 +11,22 @@ import StoresPage from './pages/StoresPage';
 import ProfilePage from './pages/ProfilePage';
 import { supabase } from './lib/supabase';
 
-// Redirects to /profile after a fresh Google OAuth sign-in
+// Redirects to /profile after a fresh sign-in (email or Google OAuth)
 function AuthHandler() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session && ['/', '/login'].includes(location.pathname)) {
-        navigate('/profile', { replace: true });
+      if (event === 'SIGNED_IN' && session) {
+        // Read current path at event time (avoids stale closure)
+        const path = window.location.pathname;
+        if (path === '/' || path === '/login') {
+          navigate('/profile', { replace: true });
+        }
       }
     });
     return () => subscription.unsubscribe();
-  }, [navigate, location.pathname]);
+  }, [navigate]);
 
   return null;
 }
