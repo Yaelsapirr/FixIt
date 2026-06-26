@@ -7,6 +7,14 @@ import './RepairGuidePage.css';
 
 const YT_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
+const MIDRAG_BY_CATEGORY = {
+  1: "https://www.midrag.co.il/Content/SectorPortal/4",
+  2: "https://www.midrag.co.il/Content/SectorPortal/5",
+  3: "https://www.midrag.co.il/Content/SectorPortal/11",
+  4: "https://www.midrag.co.il/Content/SectorPortal/11",
+  5: "https://www.midrag.co.il/Content/SectorPortal/18",
+};
+
 const YT_QUERY_MAP = {
   'faucet-drip':     'תיקון ברז מטפטף בית',
   'outlet-dead':     'שקע חשמל לא עובד תיקון',
@@ -223,12 +231,14 @@ export default function RepairGuidePage() {
           >
             {saved ? 'שמור' : 'שמור לאחר כך'}
           </button>
-          <button
+          <a
             className="action-btn action-btn--secondary"
-            onClick={() => navigate('/technicians')}
+            href={MIDRAG_BY_CATEGORY[guide.category_id] || 'https://www.midrag.co.il/Search/InSector'}
+            target="_blank"
+            rel="noreferrer"
           >
-            קרא לטכנאי
-          </button>
+            קרא לטכנאי במידרג
+          </a>
         </div>
       </main>
       <Navbar />

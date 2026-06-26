@@ -1,111 +1,100 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '../lib/supabase';
 import AppHeader from '../components/AppHeader/AppHeader';
 import Navbar from '../components/Navbar/Navbar';
 import './TechniciansPage.css';
 
-const FILTERS = ['הכל', 'אינסטלציה', 'חשמל', 'כללי'];
+const CATEGORIES = [
+  {
+    id: 'plumbing',
+    icon: '🔧',
+    name: 'אינסטלטורים',
+    desc: 'תיקון ברזים, צינורות, אסלות ונזילות',
+    url: 'https://www.midrag.co.il/Content/SectorPortal/4',
+    reviews: '319,491',
+  },
+  {
+    id: 'electric',
+    icon: '⚡',
+    name: 'חשמלאים',
+    desc: 'שקעים, מפסקים, לוח חשמל ותאורה',
+    url: 'https://www.midrag.co.il/Content/SectorPortal/5',
+    reviews: '197,927',
+  },
+  {
+    id: 'ac',
+    icon: '❄️',
+    name: 'טכנאי מזגנים',
+    desc: 'תיקון, ניקוי והתקנת מזגנים',
+    url: 'https://www.midrag.co.il/Content/SectorPortal/18',
+    reviews: '190,481',
+  },
+  {
+    id: 'renovation',
+    icon: '🏗️',
+    name: 'שיפוצניקים',
+    desc: 'ריצוף, גבס, צבע, דלתות וחלונות',
+    url: 'https://www.midrag.co.il/Content/SectorPortal/11',
+    reviews: '35,613',
+  },
+  {
+    id: 'sealing',
+    icon: '💧',
+    name: 'קבלני איטום',
+    desc: 'איטום גגות, מרפסות ורטיבות בקיר',
+    url: 'https://www.midrag.co.il/Content/SectorPortal/16',
+    reviews: '33,115',
+  },
+  {
+    id: 'locksmith',
+    icon: '🔑',
+    name: 'מנעולנים',
+    desc: 'פתיחת דלתות, החלפת מנעולים ואבטחה',
+    url: 'https://www.midrag.co.il/Search/InSector',
+    reviews: '',
+  },
+];
 
-function Stars({ count }) {
+function CategoryCard({ cat }) {
   return (
-    <span className="stars" aria-label={`דירוג ${count} מתוך 5`}>
-      {'⭐'.repeat(Math.floor(count))}
-      {'☆'.repeat(5 - Math.floor(count))}
-    </span>
-  );
-}
-
-function AvailabilityTag({ status }) {
-  return (
-    <span className={`availability-tag availability-tag--${status}`}>
-      {status === 'now' ? 'זמין עכשיו' : 'פנוי מחר'}
-    </span>
-  );
-}
-
-function ProCard({ tech }) {
-  return (
-    <div className="pro-card">
-      <div className="pro-card__top">
-        <div className="pro-card__avatar">{tech.initials}</div>
-        <div className="pro-card__info">
-          <div className="pro-card__name-row">
-            <span className="pro-card__name">{tech.name}</span>
-            <AvailabilityTag status={tech.availability} />
-          </div>
-          <span className="pro-card__specialty">{tech.specialty}</span>
-          <Stars count={tech.stars} />
-        </div>
+    <a
+      className="midrag-card"
+      href={cat.url}
+      target="_blank"
+      rel="noreferrer"
+    >
+      <span className="midrag-card__icon">{cat.icon}</span>
+      <div className="midrag-card__body">
+        <span className="midrag-card__name">{cat.name}</span>
+        <span className="midrag-card__desc">{cat.desc}</span>
+        {cat.reviews && (
+          <span className="midrag-card__reviews">{cat.reviews} חוות דעת</span>
+        )}
       </div>
-      <div className="pro-card__actions">
-        <a
-          className="contact-btn contact-btn--whatsapp"
-          href={`https://wa.me/972${tech.phone.slice(1)}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          📱 WhatsApp
-        </a>
-        <a className="contact-btn contact-btn--call" href={`tel:${tech.phone}`}>
-          📞 שיחה
-        </a>
-      </div>
-    </div>
+      <span className="midrag-card__arrow">›</span>
+    </a>
   );
 }
 
 export default function TechniciansPage() {
-  const [technicians, setTechnicians] = useState([]);
-  const [activeFilter, setActiveFilter] = useState('הכל');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    supabase
-      .from('technicians')
-      .select('*, categories(name)')
-      .then(({ data }) => {
-        setTechnicians(data || []);
-        setLoading(false);
-      });
-  }, []);
-
-  const filtered = activeFilter === 'הכל'
-    ? technicians
-    : technicians.filter((t) => t.categories?.name?.includes(activeFilter));
-
   return (
     <div className="page-container technicians-page">
       <AppHeader title="בחר איש מקצוע" showBack={true} />
 
       <main className="technicians-page__content">
-
-        <div className="filter-bar" role="group" aria-label="סינון לפי קטגוריה">
-          {FILTERS.map((f) => (
-            <button
-              key={f}
-              className={`filter-btn${activeFilter === f ? ' filter-btn--active' : ''}`}
-              onClick={() => setActiveFilter(f)}
-            >
-              {f}
-            </button>
-          ))}
+        <div className="midrag-header">
+          <img
+            src="https://www.midrag.co.il/Content/Images/Logo_home.png?v2"
+            alt="מידרג"
+            className="midrag-logo"
+            onError={function(e) { e.target.style.display = 'none'; }}
+          />
+          <p className="midrag-subtitle">בעלי מקצוע מומלצים עם חוות דעת אמיתיות</p>
         </div>
 
-        {loading ? (
-          <p className="loading-text">טוען...</p>
-        ) : filtered.length > 0 ? (
-          <div className="pro-list">
-            {filtered.map((tech) => (
-              <ProCard key={tech.id} tech={tech} />
-            ))}
-          </div>
-        ) : (
-          <div className="technicians-empty">
-            <span>😔</span>
-            <p>אין אנשי מקצוע זמינים בקטגוריה זו כרגע</p>
-          </div>
-        )}
-
+        <div className="midrag-list">
+          {CATEGORIES.map(function(cat) {
+            return <CategoryCard key={cat.id} cat={cat} />;
+          })}
+        </div>
       </main>
 
       <Navbar />
