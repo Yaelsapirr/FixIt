@@ -12,7 +12,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate('/profile', { replace: true });
+      if (session) navigate('/home', { replace: true });
     });
   }, [navigate]);
 
@@ -22,7 +22,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) { setError('אימייל או סיסמה שגויים'); return; }
-    navigate('/profile', { replace: true });
+    navigate('/home', { replace: true });
   }
 
   async function handleGoogle() {

@@ -20,7 +20,7 @@ function AuthHandler() {
       if (event === 'SIGNED_IN' && session) {
         const path = window.location.pathname;
         if (path === '/' || path === '/login') {
-          navigate('/profile', { replace: true });
+          navigate('/home', { replace: true });
         }
       }
     });
@@ -35,15 +35,16 @@ export default function App() {
     <BrowserRouter>
       <AuthHandler />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/search" element={<SearchResultsPage />} />
-        <Route path="/guide/:id" element={<RepairGuidePage />} />
-        <Route path="/repair/:id" element={<RepairGuidePage />} />
-        <Route path="/success" element={<SuccessPage />} />
-        <Route path="/technicians" element={<TechniciansPage />} />
-        <Route path="/stores" element={<StoresPage />} />
-        <Route path="/ai" element={<AiChatPage />} />
+        <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+        <Route path="/search" element={<ProtectedRoute><SearchResultsPage /></ProtectedRoute>} />
+        <Route path="/guide/:id" element={<ProtectedRoute><RepairGuidePage /></ProtectedRoute>} />
+        <Route path="/repair/:id" element={<ProtectedRoute><RepairGuidePage /></ProtectedRoute>} />
+        <Route path="/success" element={<ProtectedRoute><SuccessPage /></ProtectedRoute>} />
+        <Route path="/technicians" element={<ProtectedRoute><TechniciansPage /></ProtectedRoute>} />
+        <Route path="/stores" element={<ProtectedRoute><StoresPage /></ProtectedRoute>} />
+        <Route path="/ai" element={<ProtectedRoute><AiChatPage /></ProtectedRoute>} />
         <Route
           path="/profile"
           element={
