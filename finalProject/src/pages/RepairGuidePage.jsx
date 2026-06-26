@@ -8,26 +8,26 @@ import './RepairGuidePage.css';
 const YT_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 const YT_QUERY_MAP = {
-  'faucet-drip':     'how to fix a dripping faucet DIY',
-  'outlet-dead':     'dead electrical outlet reset GFCI DIY',
-  'door-stuck':      'door hinge adjustment fix door not closing',
-  'ac-filter':       'air conditioner filter cleaning DIY',
-  'toilet-flush':    'toilet flush mechanism repair DIY',
-  'pipe-leak':       'how to fix a leaking pipe DIY',
-  'drain-clog':      'unclog drain without chemicals DIY',
-  'toilet-run':      'running toilet flapper replacement fix',
-  'water-pressure':  'low water pressure fix home DIY',
-  'circuit-breaker': 'circuit breaker tripped reset how to',
-  'light-flickering':'flickering light fix electrical DIY',
-  'ceiling-fan':     'ceiling fan not working repair DIY',
-  'dimmer-switch':   'dimmer switch not working repair replace',
-  'extension-cord':  'power strip outlet not working fix',
-  'door-handle':     'door handle replacement repair DIY',
-  'door-squeaky':    'squeaky door hinge fix lubrication',
-  'sliding-door':    'sliding door stuck adjustment repair',
-  'window-draft':    'window draft seal weatherstripping DIY',
-  'window-lock':     'window lock repair stuck fix',
-  'floor-tile':      'how to replace a broken floor tile DIY',
+  'faucet-drip':     'תיקון ברז מטפטף בית',
+  'outlet-dead':     'שקע חשמל לא עובד תיקון',
+  'door-stuck':      'דלת לא נסגרת כיוול צירים',
+  'ac-filter':       'ניקוי פילטר מזגן ביתי',
+  'toilet-flush':    'תיקון מנגנון הדחה אסלה',
+  'pipe-leak':       'תיקון צינור מדליף בית',
+  'drain-clog':      'פתיחת סתימה בכיור ביתי',
+  'toilet-run':      'אסלה זורמת תמיד תיקון שסתום',
+  'water-pressure':  'לחץ מים חלש בית פתרון',
+  'circuit-breaker': 'מפסק אוטומטי נפל איפוס',
+  'light-flickering': 'נורה מהבהבת תיקון חשמל',
+  'ceiling-fan':     'מאוורר תקרה לא עובד תיקון',
+  'dimmer-switch':   'דימר לא עובד תיקון החלפה',
+  'extension-cord':  'מפצל חשמל לא עובד בדיקה',
+  'door-handle':     'החלפת ידית דלת בית',
+  'door-squeaky':    'דלת חורקת שימון צירים',
+  'sliding-door':    'דלת הזזה תקועה תיקון',
+  'window-draft':    'אטימת חלון רוח קר',
+  'window-lock':     'מנעול חלון תקוע תיקון',
+  'floor-tile':      'החלפת אריח ריצוף שבור',
 };
 
 function SafetyAlert({ text }) {
@@ -66,9 +66,10 @@ function YouTubeEmbed({ guideId }) {
 
   useEffect(() => {
     if (!YT_KEY || !guideId) return;
-    const query = YT_QUERY_MAP[guideId] || 'home repair DIY';
+    const query = YT_QUERY_MAP[guideId] || 'תיקון בית DIY';
     const url =
       'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=1' +
+      '&relevanceLanguage=iw&regionCode=IL' +
       '&q=' + encodeURIComponent(query) +
       '&key=' + YT_KEY;
     fetch(url)
@@ -184,14 +185,10 @@ export default function RepairGuidePage() {
   return (
     <div className="page-container repair-guide-page">
       <AppHeader title="מדריך תיקון" showBack={true} />
-
       <main className="repair-guide-page__content">
         <h2 className="repair-guide-page__title">{guide.title}</h2>
-
         {guide.safety_note && <SafetyAlert text={guide.safety_note} />}
-
         <YouTubeEmbed guideId={id} />
-
         <section className="guide-section">
           <h3 className="guide-section__title">ציוד נדרש</h3>
           <ul className="tool-list">
@@ -203,7 +200,6 @@ export default function RepairGuidePage() {
             ))}
           </ul>
         </section>
-
         <section className="guide-section">
           <h3 className="guide-section__title">שלבי התיקון</h3>
           <div className="steps-list">
@@ -217,7 +213,6 @@ export default function RepairGuidePage() {
             ))}
           </div>
         </section>
-
         <div className="repair-guide-page__actions">
           <button className="action-btn action-btn--primary" onClick={handleDone}>
             סיימתי לתקן!
@@ -236,7 +231,6 @@ export default function RepairGuidePage() {
           </button>
         </div>
       </main>
-
       <Navbar />
     </div>
   );
