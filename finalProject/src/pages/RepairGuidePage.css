@@ -242,3 +242,18 @@
   height: 100%;
   border: none;
 }
+
+/* Midrag link button */
+a.action-btn--secondary {
+  display: block;
+  text-align: center;
+  text-decoration: none;
+  background: #e8f4f8;
+  color: #1a6a8a;
+  border: 1.5px solid #a8d4e6;
+  box-sizing: border-box;
+}
+a.action-btn--secondary:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
